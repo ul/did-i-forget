@@ -1,0 +1,16 @@
+{
+  "name": "did-i-forget",
+  "version": "0.0.1",
+  "author": {
+    "name": "Ruslan Prakapchuk",
+    "email": "rprakapchuk@atlassian.com",
+    "url": "https://ul.mantike.pro"
+  },
+  "main": "index.js",
+  "bin": "cli.js",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^5.0.0",
+    "tty-table": "^4.1.1"
+  }
+}
