@@ -130,21 +130,17 @@ async function* getLogFromGit({ master }, changedPaths) {
       master,
     ])
   );
-  const existingFiles = new Set(changedPaths);
-  const nonExistingFiles = new Set();
+  const fsCache = {};
+  // Even if some files in changedPaths are deleted in the current changeset,
+  // we still want to treat them as existing in the log.
+  for (const path of changedPaths) {
+    fsCache[path] = true;
+  }
   const fileExists = (path) => {
-    if (existingFiles.has(path)) {
-      return true;
+    if (!fsCache.hasOwnProperty(path)) {
+      fsCache[path] = fs.existsSync(path);
     }
-    if (nonExistingFiles.has(path)) {
-      return false;
-    }
-    if (fs.existsSync(path)) {
-      existingFiles.add(path);
-      return true;
-    }
-    nonExistingFiles.add(path);
-    return false;
+    return fsCache[path];
   };
   for await (const line of lines) {
     if (line.length === 0 || fileExists(line)) {
