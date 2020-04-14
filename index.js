@@ -108,11 +108,17 @@ async function getGitLog(options, changedPaths) {
 
 function getChangedPaths({ master }) {
   LOG("Getting changed paths...");
-  const result = child_process
-    .spawnSync("git", ["diff", "--name-only", `${master}...`], {
+  const masterDiff = child_process
+    .spawnSync("git", ["diff", "--name-only", "--no-renames", `${master}...`], {
       encoding: "utf8",
     })
     .stdout.split("\n");
+  const uncommittedDiff = child_process
+    .spawnSync("git", ["diff", "--name-only", "--no-renames", "HEAD"], {
+      encoding: "utf8",
+    })
+    .stdout.split("\n");
+  const result = masterDiff.concat(uncommittedDiff).filter((x) => x.length > 0);
   LOG(` Done.\n`);
   LOG(`${result.length} files changed against the ${master}\n`);
   return result;
@@ -243,12 +249,11 @@ async function analyzeCoupling(commits, changedPaths) {
       }
     }
     progress += 1;
-    if (progress % 1000 === 0) {
+    if (progress < 1000 || progress % 1000 === 0) {
       LOG(`\rProcessed ${progress} commits...`);
     }
   }
-  LOG(`\rProcessed ${progress} commits...`);
-  LOG(" Done.\n");
+  LOG(`\rProcessed ${progress} commits.  \n`);
   return { commitCount, frequencies };
 }
 
