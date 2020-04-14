@@ -24,17 +24,17 @@ const formatConfidence = (x) => Math.round(x * 100) / 100;
 
 function printTable(result) {
   const header = [
-    { value: "Changed file" },
-    { value: "Top coupled file" },
-    { value: "Shared commits" },
-    { value: "Confidence" },
+    { value: "Changed file", align: "left" },
+    { value: "Coupled file", align: "left" },
+    { value: "Shared commits", align: "right" },
+    { value: "Confidence", align: "right" },
   ];
   const rows = result.map(
-    ({ path, coupledPath, sharedCommits, totalCommits }) => [
+    ({ path, coupledPath, sharedCommits, confidence }) => [
       path,
       coupledPath,
       sharedCommits,
-      formatConfidence(sharedCommits / totalCommits),
+      formatConfidence(confidence),
     ]
   );
   const options = {};
@@ -43,13 +43,11 @@ function printTable(result) {
 }
 
 function printCSV(result) {
-  process.stdout.write(
-    "Changed file,Top coupled file,Shared commits,Confidence\n"
-  );
-  for (const { path, coupledPath, sharedCommits, totalCommits } of result) {
+  process.stdout.write("Changed file,Coupled file,Shared commits,Confidence\n");
+  for (const { path, coupledPath, sharedCommits, confidence } of result) {
     process.stdout.write(
       `${path},${coupledPath},${sharedCommits},${formatConfidence(
-        sharedCommits / totalCommits
+        confidence
       )}\n`
     );
   }
@@ -57,18 +55,23 @@ function printCSV(result) {
 
 /** Generate CSV report with top untouched coupled files above threshold.
  */
-function generateReport({ commitCount, frequencies }, { threshold }) {
+function generateReport({ commitCount, frequencies }, { threshold, ntop }) {
   LOG("Generating report...");
   const result = [];
   for (const [path, coupled] of Object.entries(frequencies)) {
-    const [coupledPath, sharedCommits] = Object.entries(coupled).reduce(
-      (top, next) => (next[1] > top[1] ? next : top), // [1] is sharedCommits
-      ["", 0]
-    );
-    const totalCommits = commitCount[path];
-    if (totalCommits > 0 && sharedCommits / totalCommits >= threshold) {
-      result.push({ path, coupledPath, sharedCommits, totalCommits });
-    }
+    Object.entries(coupled)
+      .map(([coupledPath, sharedCommits]) => [
+        coupledPath,
+        sharedCommits,
+        sharedCommits / commitCount[coupledPath],
+      ])
+      // [2] is confidence
+      .filter((x) => x[2] >= threshold)
+      .sort((a, b) => b[2] - a[2])
+      .slice(0, ntop)
+      .forEach(([coupledPath, sharedCommits, confidence]) =>
+        result.push({ path, coupledPath, sharedCommits, confidence })
+      );
   }
   LOG(" Enjoy!\n");
   return result;
@@ -232,7 +235,6 @@ async function analyzeCoupling(commits, changedPaths) {
   const commitCount = {};
   const frequencies = {};
   for (const p of changedPaths) {
-    commitCount[p] = 0;
     frequencies[p] = {};
   }
   const changedPathsSet = new Set(changedPaths);
@@ -241,8 +243,10 @@ async function analyzeCoupling(commits, changedPaths) {
     const [changedPathsInCommit, unchangedPaths] = partition(paths, (p) =>
       changedPathsSet.has(p)
     );
+    for (const path of paths) {
+      commitCount[path] = (commitCount[path] || 0) + 1;
+    }
     for (const changedPath of changedPathsInCommit) {
-      commitCount[changedPath] += 1;
       for (const unchangedPath of unchangedPaths) {
         frequencies[changedPath][unchangedPath] =
           (frequencies[changedPath][unchangedPath] || 0) + 1;

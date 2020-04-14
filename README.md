@@ -18,22 +18,24 @@ $ did-i-forget -c
 ## Example output
 
 ```
-❯ did-i-forget -c
+❯ did-i-forget -c -n 3
 Getting changed paths... Done.
 2 files changed against the origin/master
 Is cache valid? Yes!
 Processed 401 commits.
 Generating report... Enjoy!
 
-  ┌──────────────────┬───────────────────┬────────────────┬────────────┐
-  │   Changed file   │ Top coupled file  │ Shared commits │ Confidence │
-  ├──────────────────┼───────────────────┼────────────────┼────────────┤
-  │ src/text_sync.rs │ src/controller.rs │       12       │    0.86    │
-  └──────────────────┴───────────────────┴────────────────┴────────────┘
+  ┌────────────────────┬──────────────────────────────────────────┬────────────────┬────────────┐
+  │    Changed file    │               Coupled file               │ Shared commits │ Confidence │
+  ├────────────────────┼──────────────────────────────────────────┼────────────────┼────────────┤
+  │ src/diagnostics.rs │ src/language_features/cquery.rs          │             13 │       0.72 │
+  ├────────────────────┼──────────────────────────────────────────┼────────────────┼────────────┤
+  │ src/diagnostics.rs │ src/language_features/document_symbol.rs │              7 │        0.7 │
+  ├────────────────────┼──────────────────────────────────────────┼────────────────┼────────────┤
+  │ src/diagnostics.rs │ src/language_features/signature_help.rs  │              6 │       0.67 │
+  └────────────────────┴──────────────────────────────────────────┴────────────────┴────────────┘
 ```
-
-In this example `did-i-forget` tells me that I worked on `src/text_sync.rs` and I might want to look into `src/controller.rs` as the latter was changed in 86% of commits which addressed `src/text_sync.rs` in the past. Just in case `src/controller.rs` need to be updated as well.
-
+In this example `did-i-forget` tells me that I worked on `src/diagnostics.rs` and I might want to look into `src/language_features/cquery.rs` as the former was changed in 72% of commits which addressed `src/language_features/cquery.rs` in the past.
 
 ## Options
 
@@ -42,6 +44,12 @@ In this example `did-i-forget` tells me that I worked on `src/text_sync.rs` and 
 `-t 0.5`, `--threshold 0.5`
 
 Set a minimum confidence for a coupled file to be reported.
+
+### Top N
+
+`-n 1`, `--ntop 1`
+
+How many top coupled files to show for each changed file.
 
 ### Cache
 
