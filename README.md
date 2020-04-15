@@ -57,7 +57,7 @@ How many top coupled files to show for each changed file.
 
 `-c`, `--cache`
 
-Cache is stamped by a master branch head SHA reference and is invalidated when it changes.
+Cache is stamped by a master revision head SHA reference and is invalidated when it changes.
 You really want to use it for repeated runs in large repositories as difference can reach orders of magnitude.
 
 #### Custom cache path
@@ -70,11 +70,11 @@ You really want to use it for repeated runs in large repositories as difference 
 
 Print result as a nicely layed out `table` or just a raw `csv`.
 
-### Master branch
+### Master revision
 
 `-m origin/master`, `--master origin/master`
 
-Specify a branch to diff current state against to find out changed files.
+Specify a revision (usually a branch) to diff current state against to find out changed files.
 
 ### Quiet mode
 
