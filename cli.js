@@ -14,11 +14,12 @@ async function main() {
     .option("-m, --master <branch>", "analyze against branch", "origin/master")
     .option("-q, --quiet", "reduce logging");
   program.parse(process.argv);
-  engine.QUIET = program.quiet;
+  const options = program.opts();
+  engine.QUIET = options.quiet;
 
-  const result = await engine.analyze(program);
+  const result = await engine.analyze(options);
 
-  if (program.format === "csv") {
+  if (options.format === "csv") {
     engine.printCSV(result);
   } else {
     engine.printTable(result);
