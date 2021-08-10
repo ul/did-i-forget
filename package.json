@@ -10,7 +10,7 @@
   "bin": "cli.js",
   "license": "MIT",
   "dependencies": {
-    "commander": "^5.0.0",
+    "commander": "^8.1.0",
     "tty-table": "^4.1.1"
   }
 }
