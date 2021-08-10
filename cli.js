@@ -15,7 +15,7 @@ async function main() {
     .option("-q, --quiet", "reduce logging");
   program.parse(process.argv);
   const options = program.opts();
-  engine.QUIET = options.quiet;
+  engine.ENGINE_OPTIONS.quiet = options.quiet;
 
   const result = await engine.analyze(options);
 

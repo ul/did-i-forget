@@ -7,8 +7,8 @@ const path = require("path");
 const table = require("tty-table");
 const zlib = require("zlib");
 
-let QUIET = false;
-const LOG = (s) => QUIET || process.stderr.write(s);
+const ENGINE_OPTIONS = { quiet: false };
+const LOG = (s) => ENGINE_OPTIONS.quiet || process.stderr.write(s);
 
 async function analyze(options) {
   const changedPaths = getChangedPaths(options);
@@ -274,5 +274,5 @@ module.exports = {
   analyze,
   printCSV,
   printTable,
-  QUIET,
+  ENGINE_OPTIONS,
 };
